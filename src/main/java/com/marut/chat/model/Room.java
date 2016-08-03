@@ -52,4 +52,12 @@ public class Room {
     public static enum ROOM_TYPE{
         PRIVATE,PUBLIC
     }
+
+    public static enum  RoomEvents {
+        SUBSCRIBE_TO_ROOM,UNSUBSCRIBE_FROM_ROOM;
+    }
+
+    public static String getEventName(String roomName,RoomEvents roomEvents){
+        return String.format("%s.%s",roomName,roomEvents.name());
+    }
 }

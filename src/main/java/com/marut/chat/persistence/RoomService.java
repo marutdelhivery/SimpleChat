@@ -46,4 +46,15 @@ public class RoomService {
                             ChatMessage.ChatEvents.SUBSCRIBE_TO_ROOM), room.getRoomName());
         }
     }
+
+    public void removeUserFromRoom(Room room,String userId){
+
+        if (room.getUserIds().contains(userId)){
+            //Create a new Bot and start listening to Room Events
+            room.getUserIds().remove(userId);
+            ChatApplication.vertx.eventBus()
+                    .publish(Room.getEventName(room.getRoomName(), Room.RoomEvents.UNSUBSCRIBE_FROM_ROOM)
+                            , room.getRoomName());
+        }
+    }
 }

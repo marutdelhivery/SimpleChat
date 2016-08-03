@@ -21,7 +21,7 @@ public class User {
     }
 
     public static String getEventName(String entity,ChatMessage.ChatEvents chatEvents){
-        return String.format("%s%s",entity,chatEvents.name());
+        return String.format("%s.%s",entity,chatEvents.name());
     }
 
     /**
