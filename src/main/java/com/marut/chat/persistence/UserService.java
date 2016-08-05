@@ -3,6 +3,7 @@ package com.marut.chat.persistence;
 import com.marut.chat.model.User;
 import com.marut.chat.server.ChatApplication;
 import com.marut.chat.server.bots.UserBot;
+import com.marut.chat.utils.EventUtils;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.AsyncResultHandler;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,10 @@ public class UserService {
                 }
             }
         });
+    }
+
+    public void sendDirectChat(String chatMessage,String userId){
+        ChatApplication.vertx.eventBus().send(EventUtils.directMessageTriggerEvent(userId),chatMessage);
     }
 
 //    public AbstractVerticle getUserBot(String userId){

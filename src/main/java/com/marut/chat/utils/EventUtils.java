@@ -30,4 +30,10 @@ public class EventUtils {
                 String.format("%s.%s.%s.%s","user","chat",toUser, ChatMessage.ChatEvents.DIRECT_MESSAGE_RECEIVED.name());
         return directMessageEvent;
     }
+
+    public static String directMessageTriggerEvent(String toUser){
+        String directMessageEvent =
+                String.format("%s.%s.%s.%s","user","chat",toUser, ChatMessage.ChatEvents.SEND_DIRECT_MESSAGE.name());
+        return directMessageEvent;
+    }
 }

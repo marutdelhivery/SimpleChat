@@ -37,7 +37,7 @@ public class ChatHTTPServer extends AbstractVerticle {
         // Bind "/" to our hello message - so we are still compatible.
         router.route("/channel/direct/message").handler(routingContext -> {
             ChatMessage chatMessage = Json.decodeValue(routingContext.getBodyAsString(),ChatMessage.class);
-            messageBroadcaster.sendDirectMessage(chatMessage.getToUser(),routingContext.getBodyAsString());
+            userService.sendDirectChat(chatMessage.getToUser(),routingContext.getBodyAsString());
             HttpServerResponse response = routingContext.response();
             response.end();
         });

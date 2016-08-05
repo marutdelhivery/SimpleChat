@@ -38,12 +38,19 @@ public class UserBot extends AbstractVerticle {
             sendChatToUser(message.getMessage());
         });
 
+        //Subscribe to subscription events for room chat
         vertx.eventBus().consumer(EventUtils.userRoomSubscriptionEvent(user.getUuid()), objectMessage -> {
             String roomName = objectMessage.body().toString();
             subscribeToRoomChat(roomName);
         });
+
+        subscribeToDirectChat();
     }
 
+    /**
+     * This will send chat event to HTTP url registered
+     * @param chatMessage
+     */
     public void sendChatToUser(final String chatMessage){
         String chatUrl = String.format("%s/%s",userChatUrl,user.getUuid());
         vertx.createHttpClient().postAbs(chatUrl,
@@ -59,11 +66,33 @@ public class UserBot extends AbstractVerticle {
      * @param room Name of the room
      */
     public void subscribeToRoomChat(String room){
+        //Subscribe to actual room chat event
         ChatApplication.vertx.eventBus().consumer(EventUtils.roomChatEvent(room), objectMessage -> {
             ChatMessage chatMessage = Json.decodeValue(objectMessage.body().toString(), ChatMessage.class);
             String message = chatMessage.getMessage();
             sendChatToUser(objectMessage.body().toString());
         });
+    }
+
+    public void subscribeToDirectChat(){
+        ChatApplication.vertx.eventBus().consumer(EventUtils.directMessageEvent(user.getUuid()), objectMessage -> {
+            ChatMessage chatMessage = Json.decodeValue(objectMessage.body().toString(), ChatMessage.class);
+            String message = chatMessage.getMessage();
+            sendChatToUser(objectMessage.body().toString());
+        });
+    }
+
+    //Subscribes for Direct Chat Event Trigger and send it to right user
+    public void triggerDirectChat(){
+        ChatApplication.vertx.eventBus().consumer(EventUtils.directMessageTriggerEvent(user.getUuid()), objectMessage -> {
+            sendDirectChat(objectMessage.body().toString());
+        });
+    }
+
+    public void sendDirectChat(String chatMessage){
+        ChatMessage chatMessage1 = Json.decodeValue(chatMessage, ChatMessage.class);
+        String endUser = chatMessage1.getToUser();
+        ChatApplication.vertx.eventBus().publish(EventUtils.directMessageEvent(endUser),chatMessage);
     }
 
     public void unsubscribeFromRoom(String room){
