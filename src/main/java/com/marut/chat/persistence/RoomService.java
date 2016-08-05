@@ -4,10 +4,11 @@ import com.marut.chat.model.ChatMessage;
 import com.marut.chat.model.Room;
 import com.marut.chat.model.User;
 import com.marut.chat.server.ChatApplication;
-import com.marut.chat.server.UserBot;
+import com.marut.chat.utils.EventUtils;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.AsyncResultHandler;
 import io.vertx.core.Verticle;
+import io.vertx.core.shareddata.AsyncMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,9 +42,9 @@ public class RoomService {
         if (!room.getUserIds().contains(userId)){
             //Create a new Bot and start listening to Room Events
             room.getUserIds().add(userId);
+            //Notify User Bot that you are subscribed to this room's chats
             ChatApplication.vertx.eventBus()
-                    .publish(User.getEventName(userService.findUser(userId),
-                            ChatMessage.ChatEvents.SUBSCRIBE_TO_ROOM), room.getRoomName());
+                    .publish(EventUtils.userRoomSubscriptionEvent(userId), room.getRoomName());
         }
     }
 
@@ -57,4 +58,5 @@ public class RoomService {
                             , room.getRoomName());
         }
     }
+
 }

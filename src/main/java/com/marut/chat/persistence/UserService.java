@@ -1,16 +1,12 @@
 package com.marut.chat.persistence;
 
-import com.marut.chat.model.ChatMessage;
 import com.marut.chat.model.User;
 import com.marut.chat.server.ChatApplication;
-import com.marut.chat.server.UserBot;
-import io.vertx.core.AbstractVerticle;
+import com.marut.chat.server.bots.UserBot;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.AsyncResultHandler;
-import io.vertx.core.json.Json;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 

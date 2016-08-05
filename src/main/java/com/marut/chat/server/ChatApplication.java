@@ -28,10 +28,13 @@ import java.util.Arrays;
 public class ChatApplication {
 
     public static Vertx vertx;
+    private static ApplicationContext applicationContext;
+
+    public static ApplicationContext getApplicationContext(){return applicationContext;}
 
     public static void main(String[] args){
 
-        ConfigurableApplicationContext applicationContext =
+        applicationContext =
                 SpringApplication.run(ChatApplication.class, args);
 
         Option cmdoptions = new Option();

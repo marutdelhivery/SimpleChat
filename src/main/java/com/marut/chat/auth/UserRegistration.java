@@ -1,10 +1,8 @@
 package com.marut.chat.auth;
 
 import com.marut.chat.events.UserEvents;
-import com.marut.chat.model.Room;
 import com.marut.chat.model.User;
-import com.marut.chat.persistence.RoomService;
-import com.marut.chat.server.UserBot;
+import com.marut.chat.server.bots.UserBot;
 import io.vertx.core.Vertx;
 
 /**

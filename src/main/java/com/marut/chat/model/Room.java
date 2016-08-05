@@ -7,6 +7,7 @@ import java.util.List;
  * Created by marutsingh on 7/19/16.
  */
 public class Room {
+    //Some regex has to be here to fix room name
     private String roomName;
     private String owner; //User Who owns this room
     private ROOM_TYPE roomType;
@@ -54,10 +55,10 @@ public class Room {
     }
 
     public static enum  RoomEvents {
-        SUBSCRIBE_TO_ROOM,UNSUBSCRIBE_FROM_ROOM;
+        SUBSCRIBE_TO_ROOM,UNSUBSCRIBE_FROM_ROOM,MESSAGE_TO_ROOM;
     }
 
     public static String getEventName(String roomName,RoomEvents roomEvents){
-        return String.format("%s.%s",roomName,roomEvents.name());
+        return String.format("room.%s.%s",roomName,roomEvents.name());
     }
 }
