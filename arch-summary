@@ -1,0 +1,20 @@
+-Entities
+------------------------
+   - User
+   - Message
+   - Room
+
+-Events
+---------------------------------
+   - User --> User (Chat)
+   - User --> Room (Subscribe)
+   - User --> Room (Unsubscribe)
+   - User --> Room (Chat)
+
+
+-Bots
+---------------------------------
+    - UserBot - Responsible for
+             --> Sending chat events to other user bots
+             --> Listening to chat events from other user bots
+             --> Listening to chat events from Rooms
