@@ -44,7 +44,7 @@ public class UserBot extends AbstractVerticle {
         });
     }
 
-    public void sendChatToUser(String chatMessage){
+    public void sendChatToUser(final String chatMessage){
         String chatUrl = String.format("%s/%s",userChatUrl,user.getUuid());
         vertx.createHttpClient().postAbs(chatUrl,
                 response -> {
