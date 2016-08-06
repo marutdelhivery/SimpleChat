@@ -81,6 +81,7 @@ public class UserBot extends AbstractVerticle {
         ChatApplication.vertx.eventBus().consumer(EventUtils.directMessageEvent(user.getUuid()), objectMessage -> {
             ChatMessage chatMessage = Json.decodeValue(objectMessage.body().toString(), ChatMessage.class);
             String message = chatMessage.getMessage();
+            System.out.println(message);
             sendChatToUser(objectMessage.body().toString());
         });
     }
@@ -88,7 +89,6 @@ public class UserBot extends AbstractVerticle {
     //Subscribes for Direct Chat Event Trigger and send it to right user
     public void triggerDirectChat(){
         ChatApplication.vertx.eventBus().consumer(EventUtils.directMessageTriggerEvent(user.getUuid()), objectMessage -> {
-            System.out.println(objectMessage.body().toString());
             sendDirectChat(objectMessage.body().toString());
         });
     }

@@ -7,6 +7,7 @@ import com.marut.chat.utils.EventUtils;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.AsyncResultHandler;
 import io.vertx.core.Handler;
+import io.vertx.core.shareddata.LocalMap;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -21,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class UserService {
 
-    private ConcurrentHashMap<String,Boolean> userBots = new ConcurrentHashMap<>();
     private Map<String,User> users = new HashMap<>();
 
     public void init(){
@@ -47,7 +47,8 @@ public class UserService {
     }
 
     public void startUserBot(String userId,Handler<AsyncResult<String>> var2){
-        if (!userBots.containsKey(userId)){
+        LocalMap<String,Boolean> userBots = ChatApplication.vertx.sharedData().getLocalMap("bots");
+        if (userBots.get(userId) == null){
             UserBot userBot = new UserBot(findUser(userId));
             ChatApplication.vertx.deployVerticle(userBot, new AsyncResultHandler<String>() {
                 @Override
@@ -56,6 +57,28 @@ public class UserService {
                         userBots.put(userId,Boolean.TRUE);
                     }
                     var2.handle(stringAsyncResult);
+                }
+            });
+        }else{
+            var2.handle(new AsyncResult<String>() {
+                @Override
+                public String result() {
+                    return null;
+                }
+
+                @Override
+                public Throwable cause() {
+                    return null;
+                }
+
+                @Override
+                public boolean succeeded() {
+                    return true;
+                }
+
+                @Override
+                public boolean failed() {
+                    return false;
                 }
             });
         }
