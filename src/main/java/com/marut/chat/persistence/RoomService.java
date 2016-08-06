@@ -49,7 +49,6 @@ public class RoomService {
     }
 
     public void removeUserFromRoom(Room room,String userId){
-
         if (room.getUserIds().contains(userId)){
             //Create a new Bot and start listening to Room Events
             room.getUserIds().remove(userId);
@@ -59,4 +58,8 @@ public class RoomService {
         }
     }
 
+    public void sendRoomChat(String chatMessage,String roomId){
+        //Broadcast to all subscribers new message has arrived
+        ChatApplication.vertx.eventBus().publish(EventUtils.roomChatEvent(roomId),chatMessage);
+    }
 }

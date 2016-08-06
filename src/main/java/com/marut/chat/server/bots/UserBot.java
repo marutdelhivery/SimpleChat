@@ -6,6 +6,7 @@ import com.marut.chat.server.ChatApplication;
 import com.marut.chat.utils.EventUtils;
 import com.sun.javafx.event.EventUtil;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
@@ -30,7 +31,7 @@ public class UserBot extends AbstractVerticle {
     }
 
     @Override
-    public void start() {
+    public void start(Future<Void> startFuture) {
         //Subscribe to all direct messages
         vertx.eventBus().consumer(EventUtils.directMessageEvent(user.getUuid()), objectMessage -> {
             ChatMessage message = Json.decodeValue(objectMessage.body().toString(), ChatMessage.class);
@@ -45,6 +46,8 @@ public class UserBot extends AbstractVerticle {
         });
 
         subscribeToDirectChat();
+        triggerDirectChat();
+        startFuture.complete();
     }
 
     /**
@@ -85,6 +88,7 @@ public class UserBot extends AbstractVerticle {
     //Subscribes for Direct Chat Event Trigger and send it to right user
     public void triggerDirectChat(){
         ChatApplication.vertx.eventBus().consumer(EventUtils.directMessageTriggerEvent(user.getUuid()), objectMessage -> {
+            System.out.println(objectMessage.body().toString());
             sendDirectChat(objectMessage.body().toString());
         });
     }

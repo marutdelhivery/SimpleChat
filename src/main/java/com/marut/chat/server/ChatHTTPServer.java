@@ -35,9 +35,10 @@ public class ChatHTTPServer extends AbstractVerticle {
 
         Router router = Router.router(vertx);
         // Bind "/" to our hello message - so we are still compatible.
+        router.route("/channel/direct/message").handler(BodyHandler.create());
         router.route("/channel/direct/message").handler(routingContext -> {
             ChatMessage chatMessage = Json.decodeValue(routingContext.getBodyAsString(),ChatMessage.class);
-            userService.sendDirectChat(chatMessage.getToUser(),routingContext.getBodyAsString());
+            userService.sendDirectChat(chatMessage.getFromUser(), routingContext.getBodyAsString());
             HttpServerResponse response = routingContext.response();
             response.end();
         });
@@ -50,21 +51,34 @@ public class ChatHTTPServer extends AbstractVerticle {
             HttpServerResponse response = routingContext.response();
             response.end();
         });
+        router.route("/user").handler(BodyHandler.create());
+        router.route("/user").handler(routingContext -> {
+            HttpServerResponse response = routingContext.response();
+            User user = userService.create(Json.decodeValue(routingContext.getBodyAsString(), User.class));
+            response.end(Json.encode(user));
+        });
 
         router.route("/user/login").handler(routingContext -> {
             String userId = routingContext.request().getParam("user");
-            userService.startUserBot(userId);
             HttpServerResponse response = routingContext.response();
-            response.end();
+            userService.startUserBot(userId,result -> {
+                if (result.succeeded()){
+                    response.end();
+                }else{
+                    response.setStatusCode(500);
+                    response.end();
+                }
+            });
         });
 
-        router.route("/user/message").handler(BodyHandler.create());
-        router.post("/user/message").handler(routingContext -> {
-            String userId = routingContext.request().getParam("user");
-            System.out.println(routingContext.getBodyAsString());
-            HttpServerResponse response = routingContext.response();
-            response.end();
-        });
+
+//        router.route("/user/message").handler(BodyHandler.create());
+//        router.post("/user/message").handler(routingContext -> {
+//            String userId = routingContext.request().getParam("user");
+//            System.out.println(routingContext.getBodyAsString());
+//            HttpServerResponse response = routingContext.response();
+//            response.end();
+//        });
 
         router.route("/channel/room/register").handler(BodyHandler.create());
         router.post("/channel/room/register").handler(routingContext -> {

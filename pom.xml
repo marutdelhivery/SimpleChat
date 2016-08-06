@@ -48,6 +48,12 @@
             <artifactId>vertx-auth-oauth2</artifactId>
             <version>${vertx.version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>4.3.2.Final</version>
+        </dependency>
         <dependency>
             <groupId>org.jacpfx.vertx.spring</groupId>
             <artifactId>vertx-spring-ext</artifactId>

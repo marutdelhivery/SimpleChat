@@ -8,6 +8,16 @@ import com.marut.chat.persistence.RoomService;
 public class User {
     String uuid;
 
+    String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getUuid() {
         return uuid;
     }

@@ -82,7 +82,7 @@ public class ChatApplication {
                     ChatHTTPServer chatHTTPServer = applicationContext.getBean(ChatHTTPServer.class);
                     vertx.deployVerticle(chatHTTPServer);
                 }
-                vertx.deployVerticle(new MessageBroadcaster());
+               //vertx.deployVerticle(new MessageBroadcaster());
             }
         });
     }
