@@ -23,9 +23,9 @@ public class RoomBot extends AbstractVerticle {
 
     private static final Logger logger = LoggerFactory.getLogger(RoomBot.class);
 
-    Room room;
+    String room;
 
-    public RoomBot(Room room){
+    public RoomBot(String room){
         this.room = room;
     }
 
@@ -33,24 +33,15 @@ public class RoomBot extends AbstractVerticle {
     public void start() {
         //Once a room is created
         //Subscribe to Room subscription message...
-        vertx.eventBus().consumer(Room.getEventName(room.getRoomName(),
-                Room.RoomEvents.SUBSCRIBE_TO_ROOM), objectMessage -> {
-            //We are expecting user data to come here
-            //If some user subscribes to this room then we get the user and
-            User message = Json.decodeValue(objectMessage.body().toString(), User.class);
-            RoomService roomService = ChatApplication.getApplicationContext().getBean(RoomService.class);
-            roomService.registerUserToRoom(room,message.getUuid());
+        vertx.eventBus().consumer(EventUtils.roomChatEvent(room), objectMessage -> {
 
+            vertx.eventBus().publish(EventUtils.userRoomChatEvent(room),objectMessage);
+//            //We are expecting user data to come here
+//            //If some user subscribes to this room then we get the user and
+//            User message = Json.decodeValue(objectMessage.body().toString(), User.class);
+//            RoomService roomService = ChatApplication.getApplicationContext().getBean(RoomService.class);
+//            roomService.registerUserToRoom(room,message.getUuid());
             //Tell corresponding user bot to start listening to room events as well
-
-        });
-
-        vertx.eventBus().consumer(Room.getEventName(room.getRoomName(),
-                Room.RoomEvents.UNSUBSCRIBE_FROM_ROOM), objectMessage -> {
-            //We are expecting user data to come here
-            User message = Json.decodeValue(objectMessage.body().toString(), User.class);
-            RoomService roomService = ChatApplication.getApplicationContext().getBean(RoomService.class);
-            roomService.removeUserFromRoom(room,message.getUuid());
         });
     }
 

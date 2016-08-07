@@ -10,6 +10,7 @@ import io.vertx.core.cli.Argument;
 import io.vertx.core.cli.CLI;
 import io.vertx.core.cli.CommandLine;
 import io.vertx.core.cli.Option;
+import io.vertx.core.shareddata.LocalMap;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 import org.springframework.boot.SpringApplication;
@@ -19,6 +20,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by marutsingh on 7/15/16.
@@ -31,6 +33,18 @@ public class ChatApplication {
     private static ApplicationContext applicationContext;
 
     public static ApplicationContext getApplicationContext(){return applicationContext;}
+
+    public static LocalMap<String,String> getUserBotsMap(){
+        return ChatApplication.vertx.sharedData().getLocalMap("user-bots");
+    }
+
+    public static LocalMap<String,String> getRoomBotsMap(){
+        return ChatApplication.vertx.sharedData().getLocalMap("room-bots");
+    }
+
+    public static LocalMap<String,List<String>> getRoomsMap(){
+        return ChatApplication.vertx.sharedData().getLocalMap("rooms");
+    }
 
     public static void main(String[] args){
 

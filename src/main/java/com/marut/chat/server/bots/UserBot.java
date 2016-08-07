@@ -70,9 +70,10 @@ public class UserBot extends AbstractVerticle {
      */
     public void subscribeToRoomChat(String room){
         //Subscribe to actual room chat event
-        ChatApplication.vertx.eventBus().consumer(EventUtils.roomChatEvent(room), objectMessage -> {
+        ChatApplication.vertx.eventBus().consumer(EventUtils.userRoomChatEvent(room), objectMessage -> {
             ChatMessage chatMessage = Json.decodeValue(objectMessage.body().toString(), ChatMessage.class);
             String message = chatMessage.getMessage();
+            System.out.println(message);
             sendChatToUser(objectMessage.body().toString());
         });
     }

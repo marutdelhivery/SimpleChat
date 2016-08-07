@@ -4,17 +4,18 @@ import com.marut.chat.model.ChatMessage;
 import com.marut.chat.model.Room;
 import com.marut.chat.model.User;
 import com.marut.chat.server.ChatApplication;
+import com.marut.chat.server.bots.RoomBot;
 import com.marut.chat.utils.EventUtils;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.AsyncResultHandler;
-import io.vertx.core.Verticle;
+import io.vertx.core.*;
 import io.vertx.core.shareddata.AsyncMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * Created by marutsingh on 7/19/16.
@@ -24,9 +25,6 @@ public class RoomService {
 
     @Autowired
     UserService userService;
-
-    Map<String,List<String>> roomUserMap = new HashMap<>();
-    Map<String,Verticle> userBots = new HashMap<>();
     Map<String,Room> userRooms = new HashMap<>();
 
     public Room findRoom(String ownerId, String roomId){
@@ -38,28 +36,59 @@ public class RoomService {
         return userRooms.get(ownerId);
     }
 
-    public void registerUserToRoom(Room room,String userId){
-        if (!room.getUserIds().contains(userId)){
-            //Create a new Bot and start listening to Room Events
-            room.getUserIds().add(userId);
-            //Notify User Bot that you are subscribed to this room's chats
-            ChatApplication.vertx.eventBus()
-                    .publish(EventUtils.userRoomSubscriptionEvent(userId), room.getRoomName());
+
+    public Room createRoom(String room){
+        //Create a new Bot and start listening to Room Events
+        Room room1 = new Room();
+        room1.setRoomName(room);
+        RoomBot roomBot = new RoomBot(room);
+        if (ChatApplication.getRoomBotsMap().get(room) == null) {
+            ChatApplication.vertx.deployVerticle(roomBot, new Handler<AsyncResult<String>>() {
+                @Override
+                public void handle(AsyncResult<String> stringAsyncResult) {
+                    if (stringAsyncResult.succeeded()) {
+                        ChatApplication.getRoomsMap().put(room, new ArrayList<>());
+                        ChatApplication.getRoomBotsMap().put(room, stringAsyncResult.result());
+                    }
+                }
+            });
+        }
+        return room1;
+    }
+
+    public void deleteRoom(String roomName){
+        String deploymentId = ChatApplication.getRoomBotsMap().get(roomName);
+        if ( deploymentId != null) {
+            ChatApplication.vertx.undeploy(deploymentId);
         }
     }
 
-    public void removeUserFromRoom(Room room,String userId){
-        if (room.getUserIds().contains(userId)){
-            //Create a new Bot and start listening to Room Events
-            room.getUserIds().remove(userId);
+    public void registerUserToRoom(String room,String userId){
+        if (ChatApplication.getRoomsMap().get(room) == null) {
+            ChatApplication.getRoomsMap().put(room, new ArrayList<>());
+        }
+        ChatApplication.getRoomsMap().get(room).add(userId);
+        //Create a new Bot and start listening to Room Events
+        //Notify User Bots that you are subscribed to this room's chat
+        ChatApplication.vertx.eventBus()
+                    .publish(EventUtils.userRoomSubscriptionEvent(userId), room);
+    }
+
+    public void removeUserFromRoom(String room,String userId){
+        if (getSubscribedUsers(room) != null){
+            getSubscribedUsers(room).remove(userId);
             ChatApplication.vertx.eventBus()
-                    .publish(Room.getEventName(room.getRoomName(), Room.RoomEvents.UNSUBSCRIBE_FROM_ROOM)
-                            , room.getRoomName());
+                    .publish(EventUtils.userRoomUnsubscriptionEvent(userId)
+                            , room);
         }
     }
 
     public void sendRoomChat(String chatMessage,String roomId){
         //Broadcast to all subscribers new message has arrived
-        ChatApplication.vertx.eventBus().publish(EventUtils.roomChatEvent(roomId),chatMessage);
+        ChatApplication.vertx.eventBus().publish(EventUtils.roomChatEvent(roomId), chatMessage);
+    }
+
+    private List<String> getSubscribedUsers(String room){
+        return ChatApplication.getRoomsMap().get(room);
     }
 }

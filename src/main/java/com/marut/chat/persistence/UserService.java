@@ -12,9 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by marutsingh on 7/19/16.
@@ -46,49 +43,75 @@ public class UserService {
         return user;
     }
 
+    /**
+     * Deploys user bot
+     * @param userId
+     * @param var2
+     */
     public void startUserBot(String userId,Handler<AsyncResult<String>> var2){
-        LocalMap<String,Boolean> userBots = ChatApplication.vertx.sharedData().getLocalMap("bots");
+
+        LocalMap<String,String> userBots = ChatApplication.vertx.sharedData().getLocalMap("bots");
         if (userBots.get(userId) == null){
             UserBot userBot = new UserBot(findUser(userId));
             ChatApplication.vertx.deployVerticle(userBot, new AsyncResultHandler<String>() {
                 @Override
                 public void handle(AsyncResult<String> stringAsyncResult) {
                     if (stringAsyncResult.succeeded()){
-                        userBots.put(userId,Boolean.TRUE);
+                        userBots.put(userId,stringAsyncResult.result());
                     }
-                    var2.handle(stringAsyncResult);
+                    if (var2 != null){
+                        var2.handle(stringAsyncResult);
+                    }
                 }
             });
-        }else{
-            var2.handle(new AsyncResult<String>() {
-                @Override
-                public String result() {
-                    return null;
-                }
+        }else {
+            if (var2 != null) {
+                var2.handle(new AsyncResult<String>() {
+                    @Override
+                    public String result() {
+                        return null;
+                    }
 
-                @Override
-                public Throwable cause() {
-                    return null;
-                }
+                    @Override
+                    public Throwable cause() {
+                        return null;
+                    }
 
-                @Override
-                public boolean succeeded() {
-                    return true;
-                }
+                    @Override
+                    public boolean succeeded() {
+                        return true;
+                    }
 
-                @Override
-                public boolean failed() {
-                    return false;
-                }
-            });
+                    @Override
+                    public boolean failed() {
+                        return false;
+                    }
+                });
+            }
         }
     }
 
-    public void sendDirectChat(String userId,String chatMessage){
-        ChatApplication.vertx.eventBus().publish(EventUtils.directMessageTriggerEvent(userId), chatMessage);
+    /**
+     * Stops the user bot
+     * @param userId userId
+     */
+    public void stopUserBot(String userId){
+        LocalMap<String,String> userBots = ChatApplication.getUserBotsMap();
+        String deploymentId = userBots.get(userId);
+        ChatApplication.vertx.undeploy(deploymentId, new AsyncResultHandler<Void>() {
+            @Override
+            public void handle(AsyncResult<Void> voidAsyncResult) {
+                if (voidAsyncResult.succeeded()) {
+                    userBots.remove(userId);
+                }
+            }
+        });
     }
 
-//    public AbstractVerticle getUserBot(String userId){
-//        ChatApplication.vertx.verticleFactories().stream().findFirst().get().
-//    }
+    public void sendDirectChat(String fromUser,String toUser, String chatMessage){
+        //TODO: This shall be removed...bots shall start whenever user logs in..
+        startUserBot(fromUser,null);
+        startUserBot(toUser,null);
+        ChatApplication.vertx.eventBus().publish(EventUtils.directMessageTriggerEvent(fromUser), chatMessage);
+    }
 }

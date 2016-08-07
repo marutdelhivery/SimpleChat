@@ -25,6 +25,12 @@ public class EventUtils {
         return roomSubscriptionEvent;
     }
 
+    public static String userRoomChatEvent(String room){
+        String roomSubscriptionEvent =
+                String.format("%s.%s.%s.%s.%s", "room","user", "chat",room, ChatMessage.ChatEvents.ROOM_MESSAGE_RECEIVED.name());
+        return roomSubscriptionEvent;
+    }
+
     public static String directMessageEvent(String toUser){
         String directMessageEvent =
                 String.format("%s.%s.%s.%s","user","chat",toUser, ChatMessage.ChatEvents.DIRECT_MESSAGE_RECEIVED.name());
