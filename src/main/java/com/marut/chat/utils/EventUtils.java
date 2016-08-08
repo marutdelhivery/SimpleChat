@@ -19,6 +19,12 @@ public class EventUtils {
         return roomSubscriptionEvent;
     }
 
+    public static String roomDeleteEvent(String room){
+        String roomSubscriptionEvent =
+                String.format("%s.%s.%s", "room", room, ChatMessage.ChatEvents.DELETE_ROOM.name());
+        return roomSubscriptionEvent;
+    }
+
     public static String roomChatEvent(String room){
         String roomSubscriptionEvent =
                 String.format("%s.%s.%s.%s", "room", "chat",room, ChatMessage.ChatEvents.ROOM_MESSAGE_RECEIVED.name());

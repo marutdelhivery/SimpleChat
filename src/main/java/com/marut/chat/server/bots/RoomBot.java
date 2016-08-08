@@ -35,7 +35,7 @@ public class RoomBot extends AbstractVerticle {
         //Subscribe to Room subscription message...
         vertx.eventBus().consumer(EventUtils.roomChatEvent(room), objectMessage -> {
 
-            vertx.eventBus().publish(EventUtils.userRoomChatEvent(room),objectMessage);
+            vertx.eventBus().publish(EventUtils.userRoomChatEvent(room),objectMessage.body());
 //            //We are expecting user data to come here
 //            //If some user subscribes to this room then we get the user and
 //            User message = Json.decodeValue(objectMessage.body().toString(), User.class);

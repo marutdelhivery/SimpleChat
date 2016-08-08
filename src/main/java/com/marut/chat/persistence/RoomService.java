@@ -7,6 +7,7 @@ import com.marut.chat.server.ChatApplication;
 import com.marut.chat.server.bots.RoomBot;
 import com.marut.chat.utils.EventUtils;
 import io.vertx.core.*;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.shareddata.AsyncMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,7 @@ public class RoomService {
                 @Override
                 public void handle(AsyncResult<String> stringAsyncResult) {
                     if (stringAsyncResult.succeeded()) {
-                        ChatApplication.getRoomsMap().put(room, new ArrayList<>());
+                        ChatApplication.getRoomsMap().put(room, new JsonArray());
                         ChatApplication.getRoomBotsMap().put(room, stringAsyncResult.result());
                     }
                 }
@@ -64,10 +65,6 @@ public class RoomService {
     }
 
     public void registerUserToRoom(String room,String userId){
-        if (ChatApplication.getRoomsMap().get(room) == null) {
-            ChatApplication.getRoomsMap().put(room, new ArrayList<>());
-        }
-        ChatApplication.getRoomsMap().get(room).add(userId);
         //Create a new Bot and start listening to Room Events
         //Notify User Bots that you are subscribed to this room's chat
         ChatApplication.vertx.eventBus()
@@ -75,6 +72,7 @@ public class RoomService {
     }
 
     public void removeUserFromRoom(String room,String userId){
+
         if (getSubscribedUsers(room) != null){
             getSubscribedUsers(room).remove(userId);
             ChatApplication.vertx.eventBus()
@@ -88,7 +86,7 @@ public class RoomService {
         ChatApplication.vertx.eventBus().publish(EventUtils.roomChatEvent(roomId), chatMessage);
     }
 
-    private List<String> getSubscribedUsers(String room){
+    private JsonArray getSubscribedUsers(String room){
         return ChatApplication.getRoomsMap().get(room);
     }
 }

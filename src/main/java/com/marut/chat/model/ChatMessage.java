@@ -25,15 +25,7 @@ public class ChatMessage {
      * Created by marutsingh on 7/19/16.
      */
     public static enum  ChatEvents {
-        SEND_DIRECT_MESSAGE,DIRECT_MESSAGE_RECEIVED,ROOM_MESSAGE_RECEIVED,SUBSCRIBE_TO_ROOM,UNSUBSCRIBE_FROM_ROOM;
-
-        public static String getRoomMessageEvent(String room){
-            return String.format("%s.%s",room,ROOM_MESSAGE_RECEIVED.name());
-        }
-
-        public static String getDirectMessageEvent(String toUser){
-            return String.format("%s.%s",toUser,DIRECT_MESSAGE_RECEIVED.name());
-        }
+        SEND_DIRECT_MESSAGE,DIRECT_MESSAGE_RECEIVED,ROOM_MESSAGE_RECEIVED,SUBSCRIBE_TO_ROOM,UNSUBSCRIBE_FROM_ROOM,DELETE_ROOM;
     }
 
     public String getFromUser() {

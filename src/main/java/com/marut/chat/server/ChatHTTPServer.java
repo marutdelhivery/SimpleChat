@@ -46,7 +46,8 @@ public class ChatHTTPServer extends AbstractVerticle {
         router.route("/room").handler(BodyHandler.create());
         router.route("/room").handler(routingContext -> {
             HttpServerResponse response = routingContext.response();
-            Room room = roomService.createRoom(Json.decodeValue(routingContext.getBodyAsString(), Room.class));
+            Room room = Json.decodeValue(routingContext.getBodyAsString(),Room.class);
+            roomService.createRoom(room.getRoomName());
             response.end(Json.encode(room));
         });
 

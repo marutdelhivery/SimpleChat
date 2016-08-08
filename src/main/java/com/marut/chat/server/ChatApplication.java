@@ -6,10 +6,12 @@ import com.marut.chat.persistence.UserService;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.cli.Argument;
 import io.vertx.core.cli.CLI;
 import io.vertx.core.cli.CommandLine;
 import io.vertx.core.cli.Option;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.shareddata.LocalMap;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
@@ -42,7 +44,7 @@ public class ChatApplication {
         return ChatApplication.vertx.sharedData().getLocalMap("room-bots");
     }
 
-    public static LocalMap<String,List<String>> getRoomsMap(){
+    public static LocalMap<String,JsonArray> getRoomsMap(){
         return ChatApplication.vertx.sharedData().getLocalMap("rooms");
     }
 

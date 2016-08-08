@@ -9,6 +9,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,19 +30,14 @@ public class UserBot extends AbstractVerticle {
     public UserBot(User user){
         this.user = user;
     }
+    MessageConsumer roomListener;
 
     @Override
     public void start(Future<Void> startFuture) {
-        //Subscribe to all direct messages
-        vertx.eventBus().consumer(EventUtils.directMessageEvent(user.getUuid()), objectMessage -> {
-            ChatMessage message = Json.decodeValue(objectMessage.body().toString(), ChatMessage.class);
-            System.out.print(message);
-            sendChatToUser(message.getMessage());
-        });
-
         //Subscribe to subscription events for room chat
-        vertx.eventBus().consumer(EventUtils.userRoomSubscriptionEvent(user.getUuid()), objectMessage -> {
+        roomListener = vertx.eventBus().consumer(EventUtils.userRoomSubscriptionEvent(user.getUuid()), objectMessage -> {
             String roomName = objectMessage.body().toString();
+            subscribeToRoomDeleteEvent(roomName);
             subscribeToRoomChat(roomName);
         });
 
@@ -64,18 +60,26 @@ public class UserBot extends AbstractVerticle {
             }).end(chatMessage);
     }
 
+    public void subscribeToRoomDeleteEvent(String room){
+        vertx.eventBus().consumer(EventUtils.roomDeleteEvent(room), roomDeleteMessage -> {
+            roomListener.unregister();
+        });
+    }
     /**
      *  //Subscribe to all chats coming to this room
      * @param room Name of the room
      */
     public void subscribeToRoomChat(String room){
-        //Subscribe to actual room chat event
-        ChatApplication.vertx.eventBus().consumer(EventUtils.userRoomChatEvent(room), objectMessage -> {
-            ChatMessage chatMessage = Json.decodeValue(objectMessage.body().toString(), ChatMessage.class);
-            String message = chatMessage.getMessage();
-            System.out.println(message);
-            sendChatToUser(objectMessage.body().toString());
-        });
+        if (!ChatApplication.getRoomsMap().get(room).contains(user.getUuid())){
+            ChatApplication.getRoomsMap().get(room).add(user.getUuid());
+            //Subscribe to actual room chat event
+            ChatApplication.vertx.eventBus().consumer(EventUtils.userRoomChatEvent(room), objectMessage -> {
+                ChatMessage chatMessage = Json.decodeValue(objectMessage.body().toString(), ChatMessage.class);
+                String message = chatMessage.getMessage();
+                System.out.println(message + " to " + user.getUuid());
+                sendChatToUser(message);
+            });
+        }
     }
 
     public void subscribeToDirectChat(){
