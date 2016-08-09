@@ -44,7 +44,7 @@ public class ChatApplication {
         return ChatApplication.vertx.sharedData().getLocalMap("room-bots");
     }
 
-    public static LocalMap<String,JsonArray> getRoomsMap(){
+    public static LocalMap<String,Boolean> getRoomsMap(){
         return ChatApplication.vertx.sharedData().getLocalMap("rooms");
     }
 

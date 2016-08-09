@@ -70,11 +70,13 @@ public class UserBot extends AbstractVerticle {
      * @param room Name of the room
      */
     public void subscribeToRoomChat(String room){
-        if (!ChatApplication.getRoomsMap().get(room).contains(user.getUuid())){
-            ChatApplication.getRoomsMap().get(room).add(user.getUuid());
+        String userRoomKey = String.format("%s_%s",room,user.getUuid());
+        if (ChatApplication.getRoomsMap().get(userRoomKey) == null){
+            ChatApplication.getRoomsMap().put(userRoomKey,Boolean.TRUE);
             //Subscribe to actual room chat event
             ChatApplication.vertx.eventBus().consumer(EventUtils.userRoomChatEvent(room), objectMessage -> {
-                ChatMessage chatMessage = Json.decodeValue(objectMessage.body().toString(), ChatMessage.class);
+                final String messageBody = objectMessage.body().toString();
+                ChatMessage chatMessage = Json.decodeValue(messageBody, ChatMessage.class);
                 String message = chatMessage.getMessage();
                 System.out.println(message + " to " + user.getUuid());
                 sendChatToUser(message);
@@ -105,6 +107,6 @@ public class UserBot extends AbstractVerticle {
     }
 
     public void unsubscribeFromRoom(String room){
-
+        //TODO: Implement this
     }
 }

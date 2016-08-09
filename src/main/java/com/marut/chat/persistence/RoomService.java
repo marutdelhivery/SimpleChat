@@ -48,7 +48,6 @@ public class RoomService {
                 @Override
                 public void handle(AsyncResult<String> stringAsyncResult) {
                     if (stringAsyncResult.succeeded()) {
-                        ChatApplication.getRoomsMap().put(room, new JsonArray());
                         ChatApplication.getRoomBotsMap().put(room, stringAsyncResult.result());
                     }
                 }
@@ -72,13 +71,9 @@ public class RoomService {
     }
 
     public void removeUserFromRoom(String room,String userId){
-
-        if (getSubscribedUsers(room) != null){
-            getSubscribedUsers(room).remove(userId);
-            ChatApplication.vertx.eventBus()
-                    .publish(EventUtils.userRoomUnsubscriptionEvent(userId)
-                            , room);
-        }
+        ChatApplication.vertx.eventBus()
+                .publish(EventUtils.userRoomUnsubscriptionEvent(userId)
+                        , room);
     }
 
     public void sendRoomChat(String chatMessage,String roomId){
@@ -86,7 +81,7 @@ public class RoomService {
         ChatApplication.vertx.eventBus().publish(EventUtils.roomChatEvent(roomId), chatMessage);
     }
 
-    private JsonArray getSubscribedUsers(String room){
+    /*private JsonArray getSubscribedUsers(String room){
         return ChatApplication.getRoomsMap().get(room);
-    }
+    }*/
 }
